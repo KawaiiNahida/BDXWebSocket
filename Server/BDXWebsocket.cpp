@@ -71,7 +71,8 @@ template <size_t size> void u2a(char(&buf)[size], int num) {
 		buf[i] = d;
 	}
 }
-string gettimen() {
+//time without sec
+inline string gettimen() {
 	auto timet = chrono::system_clock::to_time_t(chrono::system_clock::now());
 	tm time;
 	char buf[3] = { 0 };
@@ -87,7 +88,8 @@ string gettimen() {
 	str += buf;
 	return str;
 }
-string gettime1r() {
+//time 1min ago without sec
+inline string gettime1r() {
 	auto timet = chrono::system_clock::to_time_t(chrono::system_clock::now());
 	tm time;
 	char buf[3] = { 0 };
@@ -99,11 +101,32 @@ string gettime1r() {
 	str += buf;
 	u2a(buf, time.tm_hour);
 	str += buf;
-	u2a(buf, time.tm_min);
+	u2a(buf, (time.tm_min - 1));
 	str += buf;
 	return str;
 }
-string MD5(const string& src) {
+//get realtime with sec
+inline std::string gettime() {
+	auto timet = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+	tm time;
+	char buf[3] = { 0 };
+	localtime_s(&time, &timet);
+	std::string str(std::to_string((time.tm_year + 1900)));
+	str += "-";
+	u2a(buf, time.tm_mon + 1);
+	str += buf; str += "-";
+	u2a(buf, time.tm_mday);
+	str += buf; str += " ";
+	u2a(buf, time.tm_hour);
+	str += buf; str += ":";
+	u2a(buf, time.tm_min);
+	str += buf; str += ":";
+	u2a(buf, time.tm_sec);
+	str += buf;
+	return str;
+}
+//calcu MD5
+inline string MD5(const string& src) {
 	MD5_CTX ctx;
 
 	string md5_string;
@@ -122,19 +145,22 @@ string MD5(const string& src) {
 	}
 	return md5_string;
 }
-bool auth(string passwdm5) {
+//auth passwd
+inline bool auth(string passwdm5) {
 	wspasswd = MD5(wspasswdbase + gettimen());
 	wspasswd1r = MD5(wspasswdbase + gettime1r());
+	//cout << wspasswd << "  " << wspasswd1r << endl;
 	if (passwdm5 == wspasswd || passwdm5 == wspasswd1r)
 		return true;
 	else
 		return false;
 }
-void wsinitmsg() {
-	cout << "WS Port " << wsport << endl;
-	cout << "BasePW  " << wspasswdbase << endl;
-	cout << "BaseMD5 " << MD5(wspasswd) << endl;
+inline void wsinitmsg() {
+	cout << "[" << gettime() << " Init][WSI] [WS Port    ] " << wsport << endl;
+	cout << "[" << gettime() << " Init][WSI] [Base Passwd] " << wspasswdbase << endl;
+	cout << "[" << gettime() << " Init][WSI] [Passwd MD5 ] " << MD5(wspasswd) << endl;
 }
+//send to all client
 void ws_send_all(string text) {
 	if (enablews) {
 		if (ws_connections_count != 0) {
@@ -143,23 +169,25 @@ void ws_send_all(string text) {
 			}
 		}
 		else {
-			printf("WebSocket Not Connected\n");
+			cout << "[" << gettime() << " Error][WSE] [NoClient] " << "WebSocket Not Connected" << endl;
 
 		}
 	}
 }
+//sent to latest client
 void ws_send_now_connection(string text) {
 	if (enablews) {
 		if (ws_connections_count != 0) {
 			now_connection->send(text);
 		}
 		else {
-			printf("WebSocket Not Connected\n");
+			cout << "[" << gettime() << " Error][WSE] [NoClient] " << "WebSocket Not Connected" << endl;
 		}
 
 	}
 }
-string makemsg(string type1, string type1m, string type2, string type2m, string type3, string type3m) {
+//make a message to client
+inline string makemsg(string type1, string type1m, string type2, string type2m, string type3, string type3m) {
 	rapidjson::StringBuffer msg;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(msg);
 	writer.StartObject();
@@ -177,11 +205,14 @@ string makemsg(string type1, string type1m, string type2, string type2m, string 
 
 	return msg.GetString();
 }
-void handlecmd(string operate,bool authsuccess,string cmd) {
+//handle when msg in
+inline void handlecmd(string operate,bool authsuccess,string cmd) {
 	if (operate == "runcmd") {
 		if (authsuccess) {
 			ws_on_cmd = true;
-			BDX::runcmd(cmd);
+			string ret = BDX::runcmdEx(cmd).second;
+
+			ws_send_now_connection(makemsg("operate", operate, "Auth", string("PasswdMatch"), "feedback", ret));
 		}
 		else
 			ws_send_all(makemsg("operate", operate, "onError", "Auth", "text", "Password Not Match"));
@@ -203,15 +234,14 @@ void ws() {
 	echo.on_message = [&server](shared_ptr<WsServer::Connection> connection, shared_ptr<WsServer::InMessage> in_message) {
 		string in_msg = in_message->string();
 		now_connection = connection;
-
-		cout << "WebSocket Message Recived: \n\"" << in_msg << "\"\nfrom " << connection.get() << endl;
+		cout << "[" << gettime() << " INFO][WSM] [" << "RecivedMsg" << "] " << in_msg << " from " << connection.get() << endl;
 		//get json
 		rapidjson::Document document;
 		document.Parse(in_msg.c_str());
 		rapidjson::Value::ConstMemberIterator iter = document.FindMember("op");
 		if (iter != document.MemberEnd()) {
 			op = iter->value.GetString();
-			cout << "WSOP : " << op << endl;
+			cout << "[" << gettime() << " INFO][WSH] " << "[Operate:\"" << op << "\"]";
 		}
 		rapidjson::Value::ConstMemberIterator iter2 = document.FindMember("passwd");
 		if (iter != document.MemberEnd()) {
@@ -220,52 +250,49 @@ void ws() {
 			passwdmatch = auth(passwd);
 			if (passwdmatch) {
 				passwdmatch = true;
-				cout << "PasswdMatch" << endl;
+				cout << ";[Auth:\"PasswdMatch\"]";
 			}
 			else {
 				passwdmatch = false;
-				cout << "PasswdNotMatch" << endl;
+				cout << ";[Auth:\"PasswdNotMatch\"]";
 			}
 
 		}
 		rapidjson::Value::ConstMemberIterator iter3 = document.FindMember("cmd");
 		if (iter != document.MemberEnd()) {
 			cmd = iter3->value.GetString();
-			cout << "WSCommand : " << cmd << endl;
+			//cout << "WSCommand : " << cmd << endl;
+			cout << ";[Command:\"" << cmd << "\"]" << endl;
 		}
 		//handle command
 		handlecmd(op, passwdmatch, cmd);
 	};
 
 	echo.on_open = [&server](shared_ptr<WsServer::Connection> connection) {
-		cout << "WS: New connection " << connection.get();
 		all_connection = server.get_connections();
 		ws_connections_count++;
-		cout << " ClientCounts " << ws_connections_count << endl;
+		cout << "[" << gettime() << " INFO][WSO] [NewConnection] " << connection.get() << " Clients " << ws_connections_count << endl;
 	};
 
 	echo.on_close = [&server](shared_ptr<WsServer::Connection> connection, int status, const string& /*reason*/) {
-		cout << "WS: Closed connection " << connection.get() << " with status code " << status;
 		all_connection = server.get_connections();
 		ws_connections_count--;
-		cout << " ClientCounts " << ws_connections_count << endl;
+		cout << "[" << gettime() << " INFO][WSC] [LostConnection] " << connection.get() <<"Status "<< status << " Clients " << ws_connections_count << endl;
 	};
 	echo.on_handshake = [](shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap& /*response_header*/) {
 		return SimpleWeb::StatusCode::information_switching_protocols; // Html handshake,then Upgrade to websocket
 	};
 	echo.on_error = [&server](shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code& ec) {
-		cout << "Server: Error in connection " << connection.get() << ". "
-			<< "Error: " << ec << ", error message: " << ec.message();
 		all_connection = server.get_connections();
 		ws_connections_count--;
-		cout << " ClientCounts " << ws_connections_count << endl;
+		cout << "[" << gettime() << " Error][WSE] [ErrorConnection] " << connection.get() << " Clients " << ws_connections_count << endl;
 	};
 	promise<unsigned short> server_port;
 	thread server_thread([&server, &server_port]() {
 		// Start server
 		server.start([&server_port](unsigned short port) {
 			server_port.set_value(port);
-			wsinitmsg();
+			
 		});
 	});;
 	server_thread.join();
@@ -276,7 +303,7 @@ void reglist() {
 		ws_send_all(makemsg("operate", string("onmsg" ), "target", event.getPlayer().getName(), "text", event.getChat()));
 	});
 	addListener([](PlayerJoinEvent& event) {
-		ws_send_all(makemsg("operate", string("onjoin"), "target", event.getPlayer().getName(), "text", string("Joined server")));
+		ws_send_all(makemsg("operate", string("onjoin"), "target", event.getPlayer().getName(), "text", string(event.getPlayer().getIP())));
 	});
 	addListener([](PlayerLeftEvent& event) {
 		ws_send_all(makemsg("operate", string("onleft"), "target", event.getPlayer().getName(), "text", string("Lefted server")));
@@ -293,22 +320,28 @@ void wst_entry() {
 		thread ws_thread(ws);
 		ws_thread.detach();
 		ws_not_inited = false;
+		wsinitmsg();
 	}
 }
-
+/*
 bool Get_cmd = false;
 LIGHTBASE_API std::vector<string> getPlayerList();
 THook(void, "?addMessage@CommandOutput@@AEAAXAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBV?$vector@VCommandOutputParameter@@V?$allocator@VCommandOutputParameter@@@std@@@3@W4CommandOutputMessageType@@@Z",
 	void* _this, string const& commandfeedback, void* a2, __int64 a3, int a4) {
 	if (ws_on_cmd) {
-		Get_cmd = true;
 		ws_on_cmd = false;
+		if (commandfeedback.empty()) {
+			Get_cmd = false;
+		}
+		else {
+			Get_cmd = true;
+		}
 	}
 	/*if (ws_on_cmd) {
 		cout << "WS Command Result: " << commandfeedback << endl;
 		ws_send_now_connection(makemsg("operate", op, "Auth", string("PasswdMatch"), "feedback", commandfeedback));
 		ws_on_cmd = false;
-	}*/
+	}
 
 	original(_this, commandfeedback, a2, a3, a4);
 }
@@ -317,10 +350,11 @@ THook(void, "??$_Insert_string@DU?$char_traits@D@std@@_K@std@@YAAEAV?$basic_ostr
 		cout << "WS Command Result Got" << endl;
 		ws_send_now_connection(makemsg("operate", op, "Auth", string("PasswdMatch"), "feedback", output));
 		Get_cmd = false;
+		
 	}
 	original(a1,output,a3);
 
-}
+}*/
 
 /*
 THook(void, "?send@CommandOutputSender@@UEAAXAEBVCommandOrigin@@AEBVCommandOutput@@@Z", void* _this, const CommandOrigin* a2, const CommandOutput* a3) {

@@ -7,6 +7,7 @@
 #include<stl\KVDB.h>
 #include<api\types\helper.h>
 #include<string>
+#include <stdarg.h>
 #pragma warning(disable:4996)
 using namespace std;
 std::string addr;
@@ -178,28 +179,12 @@ void wsclient() {
 
                 }
                 if (op == "runcmd") {
-                    string auth, feedback;
-                    bool authfail;
+                    string feedback;
                     rapidjson::Value::ConstMemberIterator iter2 = document.FindMember("Auth");
                     if (iter2 != document.MemberEnd()) {
-                        auth = iter2->value.GetString();
-                        if (auth.empty())
-                            authfail = false;
-                        else
-                            authfail = true;
-                        rapidjson::Value::ConstMemberIterator iter3 = document.FindMember("feedback");
+                        rapidjson::Value::ConstMemberIterator iter3 = document.FindMember("text");
                         if (iter3 != document.MemberEnd()) {
                             feedback = iter3->value.GetString();
-                        }
-                    }
-                    if (authfail) {
-                        rapidjson::Value::ConstMemberIterator iter4 = document.FindMember("onError");
-                        if (iter4 != document.MemberEnd()) {
-                            auth = iter4->value.GetString();
-                            rapidjson::Value::ConstMemberIterator iter5 = document.FindMember("feedback");
-                            if (iter5 != document.MemberEnd()) {
-                                feedback = iter5->value.GetString();
-                            }
                         }
                     }
 
@@ -226,6 +211,7 @@ void wsclient() {
     };
     client.start();
 }
+
 std::string gettime1r() {
     auto timet = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
     tm time;
@@ -252,7 +238,6 @@ int main() {
     cout << "  \\ \\/  \\/ / _ \\ '_ \\\\___ \\ / _ \\ / __| |/ / _ \\ __| |    | | |/ _ \\ '_ \\| __|" << endl;
     cout << "   \\  /\\  /  __/ |_) |___) | (_) | (__|   <  __/ |_| |____| | |  __/ | | | |_" << endl;
     cout << "    \\/  \\/ \\___|_.__/_____/ \\___/ \\___|_|\\_\\___|\\__|\\_____|_|_|\\___|_| |_|\\__|" << endl;
-
     string title = "BDXWebsocket TestClient ";
     SetConsoleTitleA(title.c_str());
     std::cout << "ServerAddress: ws://";
@@ -276,8 +261,6 @@ int main() {
     if (mode == "hand") {
         for (;;) {
             Sleep(10);
-            string a = "fkufku \n fkufku";
-            cout << "wait for input"<<a << endl;
             cout << "Now   passwd " << passwd + gettime() << "  " << MD5(passwd + gettime()) << endl;
             cout << "-1Min passwd " << passwd + gettime1r() << "  " << MD5(passwd + gettime1r()) << endl;
             std::string inmsg;

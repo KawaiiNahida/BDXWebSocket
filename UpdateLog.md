@@ -17,3 +17,5 @@
 ##2020-04-10
 1 upgrade to bdx sdk 0409
 2 change server output
+##2020-04-11
+1 change some API

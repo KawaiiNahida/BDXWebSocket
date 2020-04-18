@@ -19,3 +19,7 @@
 2 change server output
 ##2020-04-11
 1 change some API
+##2020-04-18
+1 fix bugs
+2 add ```/ws list``` to show all connected clients
+3 add ```/ws disall```to disconnect all clients

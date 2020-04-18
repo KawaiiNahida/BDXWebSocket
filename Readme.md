@@ -47,17 +47,29 @@
 
 ## 密码获得规则
 服务端获取密码
+
 +当前 年月日时分
+
 （无分号，空格
+
 例如密码是passwd
+
 则验证密码passwd202004062016
+
 （2020年4月6日8点16
+
 取MD5（大写
+
 得到CD92DDCEBFB8D3FB1913073783FAC0A1
+
 客户端与服务端一致则验证成功
+
 
 ## Way to get the passwd
 1,get the base password(for example:passwd)
+
 2,add (int)year month day hour minute(e.g :passwd2020040110)
+
 3,get the MD5 vaule and it's the passwd
-(one passwd can use in 2 min
+
+(one passwd can be use in 2 min

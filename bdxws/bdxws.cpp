@@ -20,21 +20,9 @@
 #include <api\myPacket.h>
 #include <api\types\helper.h>
 #include <api\command\commands.h>
+#include <mcapi/Actor.h>
+#include <mcapi/Level.h>
 
-/*
- __ __ _  _   _____ __ _  _
-/_ /_ | || | | ____/_ | || |
- | || | || |_| |__  | | || |_
- | || |__   _|___ \ | |__   _|
- | || |  | |  ___) || |  | |
- |_||_|  |_| |____/ |_|  |_|
- __  ___  __  ___   ___  __  ___
-/_ |/ _ \/_ |/ _ \ / _ \/_ |/ _ \
- | | (_) || | (_) | (_) || | | | |
- | |\__, || |\__, |> _ < | | | | |
- | |  / / | |  / /| (_) || | |_| |
- |_| /_/  |_| /_/  \___/ |_|\___/
- */
 
  //disable fucking  error when use sprintf(sprintf_t)
 #pragma warning(disable:4996)
@@ -420,30 +408,36 @@ void ws() {
 
 	mc.on_close = [&server](shared_ptr<WsServer::Connection> connection, int status, const string& /*reason*/) {
 		all_connection = server.get_connections();
-		ws_connections_count--;
+		if (ws_connections_count != 0) {
+			ws_connections_count--;
+			string str = "\"" + connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) + "\"\n";
+			clientlist = clientlist.replace(clientlist.find(str), str.length(), "");
+		}
 		cout << "[" << gettime() << " INFO][WSC] [LostConnection] " << connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) << "Status " << status << " Clients " << ws_connections_count << endl;
 		string log = "\"LostConnection\",\"" + connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) + "\"";
 		fw("wslog.csv", log);
-		string str = "\"" + connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) + "\"\n";
-		clientlist = clientlist.replace(clientlist.find(str), str.length(), "");
 	};
 	mc.on_handshake = [](shared_ptr<WsServer::Connection> /*connection*/, SimpleWeb::CaseInsensitiveMultimap& /*response_header*/) {
 		return SimpleWeb::StatusCode::information_switching_protocols; // Html handshake,then Upgrade to websocket
 	};
 	mc.on_error = [&server](shared_ptr<WsServer::Connection> connection, const SimpleWeb::error_code& ec) {
 		all_connection = server.get_connections();
-		ws_connections_count--;
+		if (ws_connections_count != 0) {
+			ws_connections_count--;
+			string str = "\"" + connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) + "\"\n";
+			clientlist = clientlist.replace(clientlist.find(str), str.length(), "");
+		}
 		cout << "[" << gettime() << " Error][WSE] [ErrorConnection] " << connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) << " Clients " << ws_connections_count << endl;
 		string log = "\"LostConnection\",\"" + connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) + "\"";
 		fw("wslog.csv", log);
-		string str = "\"" + connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) + "\"\n";
-		clientlist = clientlist.replace(clientlist.find(str), str.length(), "");
+		
 	};
 	promise<unsigned short> server_port;
 	thread server_thread([&server, &server_port]() {
 		// Start server
 		server.start([&server_port](unsigned short port) {
 			server_port.set_value(port);
+			cout << "[" << gettime() << " INFO][WSL] [ErrorConnection] Websocket Server Started" <<endl;
 
 		});
 	});;
@@ -464,6 +458,22 @@ void reglist() {
 		ws_send_all(makemsg({ "operate", "oncmd" }, { "target", event.getPlayer().getName() }, { "text",  event.getCMD() }));
 	});
 }
+THook(void,
+	"?die@Player@@UEAAXAEBVActorDamageSource@@@Z",
+	Player* _this, ActorDamageSource* a2) {
+	if (enablews) {
+		string playername = _this->getNameTag();
+		ActorUniqueID src_id = a2->getEntityUniqueID();
+		Actor* src = LocateS<ServerLevel>()->fetchEntity(src_id, false);
+		if (src) {
+			string src_type_name = SymCall("?getEntityName@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBVActor@@@Z", string, Actor*)(src);
+			ws_send_all(makemsg({ "operate", "onplayerdie" }, { "target", playername }, { "source",src_type_name }));
+		}else {
+			ws_send_all(makemsg({ "operate", "onplayerdie" }, { "target", playername }, { "source","unknow" }));
+		}
+	}
+	original(_this, a2);
+}
 bool wss(CommandOrigin const& ori, CommandOutput& outp, string& op) {
 	if (op == "list") {
 		outp.addMessage(string("List Of " + to_string(ws_connections_count) + " WS Clients"));
@@ -478,17 +488,26 @@ bool wss(CommandOrigin const& ori, CommandOutput& outp, string& op) {
 	else
 		outp.error("no such command");
 }
-void wst_entry() {
-	loadconf();
-	reglist();
-	if (ws_not_inited) {
+void startws() {
+	addListener([](ServerStartedEvent& event) {
 		thread ws_thread(ws);
 		ws_thread.detach();
 		ws_not_inited = false;
-		wsinitmsg();
-	}
-	addListener([](RegisterCommandEvent&) {
-		MakeCommand("ws", "WebsocketServer", 1);
-		CmdOverload(ws, wss, "operate");
+
 	});
+}
+void wst_entry() {
+	loadconf();
+	if (enablews) {
+		startws();
+		if (ws_not_inited) {
+			wsinitmsg();
+		}
+		thread listener_thread(reglist);
+		listener_thread.detach();
+		addListener([](RegisterCommandEvent&) {
+			MakeCommand("ws", "WebsocketServer", 1);
+			CmdOverload(ws, wss, "operate");
+		});
+	}
 }

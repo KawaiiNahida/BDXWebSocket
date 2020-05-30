@@ -23,3 +23,8 @@
 1 fix bugs
 2 add ```/ws list``` to show all connected clients
 3 add ```/ws disall```to disconnect all clients
+##2020-04-30
+1 add ```/ws sendtoid [int:clientid] [string:msg]``` to send msg to a client 
+2 move ```/ws list``` ```/ws listws```
+3 add ```{"operate":"setdesp","desp":"description for client"``` to mark a client
+4 some detail change

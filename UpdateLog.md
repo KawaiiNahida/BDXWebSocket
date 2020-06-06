@@ -28,3 +28,5 @@
 2 move ```/ws list``` ```/ws listws```
 3 add ```{"operate":"setdesp","desp":"description for client"``` to mark a client
 4 some detail change
+##20200606  
+1 change way to get passwd

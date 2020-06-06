@@ -40,7 +40,6 @@ int wsport = 8080;
 string endpoint = "^/mc/?$";
 bool enablews = true;
 string wspasswdbase = "passwd";
-string wspasswd, wspasswd1r;
 inline bool logmsg = false;
 
 vector<pair<string, string>> wslist;
@@ -162,6 +161,42 @@ inline string MD5(const string& src) {
 	return md5_string;
 }
 //auth passwd
+string getbody(string in_msg) {
+	for (int a = 0; a == 0;) {
+		if (in_msg.find("\"passwd\"") != string::npos) {
+			int len = in_msg.length() - in_msg.find(",\"passwd\"");
+			if (len > 44) {
+				if (in_msg.find(",\"passwd\"") != string::npos) {
+					in_msg = in_msg.replace(in_msg.find(",\"passwd\""), 44, "");
+				}
+				if (in_msg.find("{\"passwd\":\"") != string::npos) {
+					in_msg = in_msg.replace(in_msg.find("{\"passwd\"") + 1, 45, "");
+				}
+			}
+			else { a = 1; }
+		}
+		else {
+			a = 1;
+		}
+
+	}
+	return in_msg;
+}
+pair<string, string> getpasswd(string msg, string passwd) {
+	string bp = getbody(msg);
+	string pw = passwd + gettime() + "@" + bp;
+	return { MD5(pw),pw };
+}
+inline bool auth(string in_pw, string msg) {
+	string auth_msg = getbody(msg);
+	string passwdn = wspasswdbase + gettimen() + "@" + auth_msg;
+	string passwd1r = wspasswdbase + gettime1r() + "@" + auth_msg;
+	if (in_pw ==MD5(passwdn) || in_pw == MD5(passwd1r))
+		return true;
+	else
+		return false;
+}
+/*
 inline bool auth(string passwdm5) {
 	wspasswd = MD5(wspasswdbase + gettimen());
 	wspasswd1r = MD5(wspasswdbase + gettime1r());
@@ -170,7 +205,7 @@ inline bool auth(string passwdm5) {
 		return true;
 	else
 		return false;
-}
+}*/
 inline void wsinitmsg() {
 	cout << "__          __  _     _____            _        _" << endl;
 	cout << "\\ \\        / / | |   / ____|          | |      | |" << endl;
@@ -406,7 +441,7 @@ namespace handle {
 				ws_send_now_connection(makejson({ "operate", "runcmd" }, { "Auth", "Success" }, { "text", ret }, { "msgid",string(msgid.val()) }));
 			else
 				ws_send_now_connection(makejson({ "operate", "runcmd" }, { "Auth", "Success" }, { "text", ret }));
-			cout << "[" << gettime() << " INFO][WSM] [" << "Running Cmd" << "] " << "[Auth]Success " << "[CMD]" << cmd << " " << endl;
+			cout << "[" << gettime() << " INFO][WSM] [" << "Running Cmd" << "] " << "[Auth]Success " << "[CMD][" << cmd << "] " << endl;
 		}
 		else {
 			if (msgid.Set())
@@ -495,16 +530,16 @@ inline void ws() {
 		//get json
 		rapidjson::Document document;
 		document.Parse(in_msg.c_str());
-		rapidjson::Value::ConstMemberIterator iter = document.FindMember("operate");
-		if (iter != document.MemberEnd()) {
-			op = iter->value.GetString();
+		rapidjson::Value::ConstMemberIterator parse = document.FindMember("operate");
+		if (parse != document.MemberEnd()) {
+			op = parse->value.GetString();
 		}
-		cout << "[" << gettime() << " INFO][WSM] [" << "RecivedMsg" << "] " /*<< in_msg*/ << " from " << connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) << endl;
-		rapidjson::Value::ConstMemberIterator iter2 = document.FindMember("passwd");
-		if (iter2 != document.MemberEnd()) {
-			passwd = iter2->value.GetString();
+		cout << "[" << gettime() << " INFO][WSM] [" << "RecivedMsg" << "] " /*<< in_msg*/ << " [" << connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) <<"]"<< endl;
+		rapidjson::Value::ConstMemberIterator parse2 = document.FindMember("passwd");
+		if (parse2 != document.MemberEnd()) {
+			passwd = parse2->value.GetString();
 			//cout << "PasswdIn: " << passwd;
-			passwdmatch = auth(passwd);
+			passwdmatch = auth(passwd,in_msg);
 			if (passwdmatch) {
 				passwdmatch = true;
 			}
@@ -512,14 +547,13 @@ inline void ws() {
 				passwdmatch = false;
 			}
 		}
-		rapidjson::Value::ConstMemberIterator iter3 = document.FindMember("msgid");
-		if (iter3 != document.MemberEnd()) {
-			msgid = iter3->value.GetString();
+		rapidjson::Value::ConstMemberIterator parse3 = document.FindMember("msgid");
+		if (parse3 != document.MemberEnd()) {
+			msgid = parse3->value.GetString();
 		}
 		//handle command
 		if (!op.empty()) {
 			string log = "\"" + gettime() + "\",\"" + "\"" + in_msg + "\",\"" + connection->remote_endpoint().address().to_string() + "\"";
-			fw("wslog.csv", log);
 			if (op == "runcmd") {
 				fw("wslog.csv", log);
 				handle::runcmd(passwdmatch, in_msg, msgid);
@@ -599,9 +633,12 @@ inline void reglist() {
 		ws_send_all(makejson({ "operate","oncdim" }, { "target",event.getPlayer().getName() }, { "from",to_string(event.SrcDim) }, { "to",to_string(event.DstDim) }));
 	});
 }
+
 /*
+typedef std::pair<string, std::vector<string>> pairsvs;
 //; public: virtual struct std::pair<cstring, vector<string>> ActorDamageSource::getDeathMessage(string a1,Actor* a2)const
-THook(void*,"?getDeathMessage@ActorDamageSource@@UEBA?AU?"
+//std::pair<string,std::vector<string > >
+THook(pairsvs,"?getDeathMessage@ActorDamageSource@@UEBA?AU?"
 "$pair@V?$basic_string@DU?$char_traits@D@std@"
 "@V?$allocator@D@2@@std@@V?$vector@V?$basic_s"
 "tring@DU?$char_traits@D@std@@V?$allocator@D@"
@@ -611,15 +648,57 @@ THook(void*,"?getDeathMessage@ActorDamageSource@@UEBA?AU?"
 "@@V?$allocator@D@2@@3@PEAVActor@@@Z",
 string a1, Actor* a2){
 	cout << a1 << endl;
-	return original(a1, a2);
+	pairsvs a =  original(a1, a2);
+	cout << a.first << endl;
+	return a;
 }
+
+; public: virtual struct std::pairstring, class std::vector<string>> ActorDamageSource::getDeathMessage(string, class Actor *)const
+?getDeathMessage@ActorDamageSource@@UEBA?AU?$pair@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$vector@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@V?$allocator@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@2@@2@@std@@V?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@3@PEAVActor@@@Z proc near
+
 */
+/*
+enum ActorDamageCause :int {
+	Override = 0,
+	Contact = 1,
+	EntityAttack = 2,
+	Projectile_0 = 3,
+	Suffocation = 4,
+	Fall_0 = 5,
+	Fire_1 = 6,
+	FireTick = 7,
+	Lava_2 = 8,
+	Drowning = 9,
+	BlockExplosion = 10,
+	EntityExplosion = 11,
+	Void = 12,
+	Suicide = 13,
+	Magic = 14,
+	Wither = 15,
+	Starve = 16,
+	Anvil_1 = 17,
+	Thorns_0 = 18,
+	FallingBlock_0 = 19,
+	Piston_0 = 20,
+	FlyIntoWall = 21,
+	Magma = 22,
+	Fireworks_0 = 23,
+	Lightning_0 = 24,
+	Charging = 25,
+	Temperature = 26,
+	All_0 = 27,
+	None_18 = 28,
+};*/
 THook(void,
 	"?die@Player@@UEAAXAEBVActorDamageSource@@@Z",
 	Player* _this, ActorDamageSource* a2) {
 	if (enablews) {
 		string playername = _this->getNameTag();
 		ActorUniqueID src_id = a2->getEntityUniqueID();
+		//unsigned long long* cause = (unsigned long long*)a2;
+		//unsigned int rcause = *(unsigned long long*)(cause + 8);
+		//string* cause_n = SymCall("?lookupCauseName@ActorDamageSource@@SAAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4ActorDamageCause@@@Z", string * ,unsigned int)(rcause);
+		//cout << rcause <<"--"<<cause_n->c_str()<< endl;
 		Actor* src = LocateS<ServerLevel>()->fetchEntity(src_id, false);
 		if (src) {
 			string src_type_name = SymCall("?getEntityName@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBVActor@@@Z", string, Actor*)(src);
@@ -631,6 +710,8 @@ THook(void,
 	}
 	original(_this, a2);
 }
+//
+
 void startws() {
 	addListener([](ServerStartedEvent& event) {
 		thread ws_thread(ws);

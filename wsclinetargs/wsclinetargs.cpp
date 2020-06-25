@@ -4,6 +4,9 @@
 #include <openssl/md5.h>
 #include<string>
 #include <stdarg.h>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
 #pragma comment( linker, "/subsystem:windows /entry:mainCRTStartup")
 #pragma warning(disable:4996)
 using namespace std;
@@ -104,32 +107,45 @@ std::string gettime1r() {
 	str += buf;
 	return str;
 }
-string getbody(string in_msg) {
-	for (int a = 0; a == 0;) {
-		if (in_msg.find("\"passwd\"") != string::npos) {
-			int len = in_msg.length() - in_msg.find(",\"passwd\"");
-			if (len > 44) {
-				if (in_msg.find(",\"passwd\"") != string::npos) {
-					in_msg = in_msg.replace(in_msg.find(",\"passwd\""), 44, "");
-				}
-				if (in_msg.find("{\"passwd\":\"") != string::npos) {
-					in_msg = in_msg.replace(in_msg.find("{\"passwd\"") + 1, 45, "");
-				}
-			}
-			else { a = 1; }
-		}
-		else {
-			a = 1;
-		}
 
-	}
-	std::cout << in_msg << endl;
-	return in_msg;
-}
 //{"passwd":"%pwd%","operate":"runcmd","cmd":"list"}
+
+inline string makejson(pair<string, string> msg1, pair<string, string> msg2, pair<string, string> msg3) {
+	rapidjson::StringBuffer mmsg;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(mmsg);
+	writer.StartObject();
+
+	writer.Key(msg1.first.c_str());
+	writer.String(msg1.second.c_str());
+	writer.Key(msg2.first.c_str());
+	writer.String(msg2.second.c_str());
+	writer.Key(msg3.first.c_str());
+	writer.String(msg3.second.c_str());
+
+	writer.EndObject();
+
+	return mmsg.GetString();
+
+}
+inline string makejson(pair<string, string> msg1, pair<string, string> msg2, pair<string, string> msg3, pair<string, string> msg4) {
+	rapidjson::StringBuffer mmsg;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(mmsg);
+	writer.StartObject();
+
+	writer.Key(msg1.first.c_str());
+	writer.String(msg1.second.c_str());
+	writer.Key(msg2.first.c_str());
+	writer.String(msg2.second.c_str());
+	writer.Key(msg3.first.c_str());
+	writer.String(msg3.second.c_str());
+	writer.Key(msg4.first.c_str());
+	writer.String(msg4.second.c_str());
+
+	writer.EndObject();
+	return mmsg.GetString();
+}
 pair<string, string> getpasswd(string msg, string passwd) {
-	string bp = getbody(msg);
-	string pw = passwd + gettime() + "@" + bp;
+	string pw = passwd + gettime() + "@" + msg;
 	return { MD5(pw),pw };
 }
 int main(int argc, char* args[]) {
@@ -143,21 +159,15 @@ int main(int argc, char* args[]) {
 			thread t(wsclient);
 			t.detach();
 			Sleep(100);
-			cmd = "{ \"operate\":\"runcmd\",\"passwd\":\"%pwd%\",\"cmd\":\"" + cmd + "\" }";
-			cout << cmd << endl;
-			if (cmd.find("%pwd%")) {
-				repall(cmd, "%pwd%", MD5(""));
-			}
-			string apw = getpasswd(cmd, pw).first;
-			if (cmd.find("D41D8CD98F00B204E9800998ECF8427E")) {
-				repall(cmd, "D41D8CD98F00B204E9800998ECF8427E", apw);
-			}
+			string msg = makejson({ "operate","runcmd" }, { "passwd","" }, { "cmd",cmd });
+			string sendout = makejson({ "operate","runcmd" }, { "passwd",getpasswd(msg,pw).first }, { "cmd",cmd });
+
 			if (scon == nullptr) {
 				cout << "Cannot Connect To Server" << endl;
 				return 0;
 			}
-			scon->send("{\"operate\":\"setdesp\",\"desp\":\"ArgsClient\"}");
-			scon->send(cmd);
+			scon->send("{\"operate\":\"setdesp\",\"desp\":\"ArgsClientCMD\"}");
+			scon->send(sendout);
 			Sleep(100);
 			scon->send_close(0);
 			return 0;
@@ -177,7 +187,7 @@ int main(int argc, char* args[]) {
 				return 0;
 			}
 			cout << "tes" << endl;
-			scon->send("{\"operate\":\"setdesp\",\"desp\":\"ArgsClient\"}");
+			scon->send("{\"operate\":\"setdesp\",\"desp\":\"ArgsClientPING\"}");
 			scon->send("{ \"operate\":\"ping\"}");
 			Sleep(500);
 			scon->send_close(0);
@@ -200,7 +210,10 @@ int main(int argc, char* args[]) {
 					scon->send_close(0);
 				}
 				return 0;
-		}
+			}
+			else {
+				cout << "No Such Command,see readme.md for help!" << endl;
+			}
 		return 0;
 	}
 }

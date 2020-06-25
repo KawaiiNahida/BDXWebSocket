@@ -43,10 +43,10 @@ string wspasswdbase = "passwd";
 inline bool logmsg = false;
 
 vector<pair<string, string>> wslist;
-void setdesp(string server,string des) {
-	wslist.push_back({server,des});
+void setdesp(string server, string des) {
+	wslist.push_back({ server,des });
 }
-pair<int,string> getdesp(string server){
+pair<int, string> getdesp(string server) {
 	string retdes = "NULL";
 	int retpoint = -1;
 	for (int a = 0; a < wslist.size(); a++) {
@@ -57,7 +57,7 @@ pair<int,string> getdesp(string server){
 	}
 	return { retpoint,retdes };
 }
-void rmdes(string server){
+void rmdes(string server) {
 	pair<int, string> wsserver = getdesp(server);
 	if (wsserver.first != -1)
 		wslist.erase(wslist.begin() + wsserver.first);
@@ -182,16 +182,21 @@ string getbody(string in_msg) {
 	}
 	return in_msg;
 }
-pair<string, string> getpasswd(string msg, string passwd) {
-	string bp = getbody(msg);
-	string pw = passwd + gettime() + "@" + bp;
-	return { MD5(pw),pw };
+inline string& repall(string& str, const string& olds, const string& news)
+{
+	string::size_type pos = 0;
+	while ((pos = str.find(olds)) != string::npos)
+	{
+		str = str.replace(str.find(olds), olds.length(), news);
+	}
+	return str;
 }
 inline bool auth(string in_pw, string msg) {
-	string auth_msg = getbody(msg);
+	string auth_msg = repall(msg, in_pw, "");
 	string passwdn = wspasswdbase + gettimen() + "@" + auth_msg;
 	string passwd1r = wspasswdbase + gettime1r() + "@" + auth_msg;
-	if (in_pw ==MD5(passwdn) || in_pw == MD5(passwd1r))
+	//cout << passwdn << endl;
+	if (in_pw == MD5(passwdn) || in_pw == MD5(passwd1r))
 		return true;
 	else
 		return false;
@@ -219,81 +224,16 @@ inline void wsinitmsg() {
 	cout << "[" << gettime() << " Init][WSI] [End Point  ] " << endpoint << endl;
 }
 //make json
-inline string makejson(pair<string, string> msg1) {
+typedef pair<string, string> twos;
+string makejson(initializer_list<twos> args)
+{
 	rapidjson::StringBuffer mmsg;
 	rapidjson::Writer<rapidjson::StringBuffer> writer(mmsg);
 	writer.StartObject();
-	writer.Key(msg1.first.c_str());
-	writer.String(msg1.second.c_str());
-	writer.EndObject();
-	return mmsg.GetString();
-
-}
-inline string makejson(pair<string, string> msg1, pair<string, string> msg2) {
-	rapidjson::StringBuffer mmsg;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(mmsg);
-	writer.StartObject();
-
-	writer.Key(msg1.first.c_str());
-	writer.String(msg1.second.c_str());
-	writer.Key(msg2.first.c_str());
-	writer.String(msg2.second.c_str());
-
-	writer.EndObject();
-
-	return mmsg.GetString();
-
-}
-inline string makejson(pair<string, string> msg1, pair<string, string> msg2, pair<string, string> msg3) {
-	rapidjson::StringBuffer mmsg;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(mmsg);
-	writer.StartObject();
-
-	writer.Key(msg1.first.c_str());
-	writer.String(msg1.second.c_str());
-	writer.Key(msg2.first.c_str());
-	writer.String(msg2.second.c_str());
-	writer.Key(msg3.first.c_str());
-	writer.String(msg3.second.c_str());
-
-	writer.EndObject();
-
-	return mmsg.GetString();
-
-}
-inline string makejson(pair<string, string> msg1, pair<string, string> msg2, pair<string, string> msg3, pair<string, string> msg4) {
-	rapidjson::StringBuffer mmsg;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(mmsg);
-	writer.StartObject();
-
-	writer.Key(msg1.first.c_str());
-	writer.String(msg1.second.c_str());
-	writer.Key(msg2.first.c_str());
-	writer.String(msg2.second.c_str());
-	writer.Key(msg3.first.c_str());
-	writer.String(msg3.second.c_str());
-	writer.Key(msg4.first.c_str());
-	writer.String(msg4.second.c_str());
-
-	writer.EndObject();
-	return mmsg.GetString();
-}
-inline string makejson(pair<string, string> msg1, pair<string, string> msg2, pair<string, string> msg3, pair<string, string> msg4, pair<string, string> msg5) {
-	rapidjson::StringBuffer mmsg;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(mmsg);
-	writer.StartObject();
-
-	writer.Key(msg1.first.c_str());
-	writer.String(msg1.second.c_str());
-	writer.Key(msg2.first.c_str());
-	writer.String(msg2.second.c_str());
-	writer.Key(msg3.first.c_str());
-	writer.String(msg3.second.c_str());
-	writer.Key(msg4.first.c_str());
-	writer.String(msg4.second.c_str());
-	writer.Key(msg5.first.c_str());
-	writer.String(msg5.second.c_str());
-
+	for (auto count = args.begin(); count != args.end(); count++) {
+		writer.Key(count->first.c_str());
+		writer.String(count->second.c_str());
+	}
 	writer.EndObject();
 	return mmsg.GetString();
 }
@@ -386,7 +326,7 @@ inline string ws_get_all_string() {
 		{
 			char p[20];
 			sprintf(p, "%p", con[i].get());
-			str += "[" + to_string(i) + "] " + con[i]->remote_endpoint().address().to_string() + ":" + to_string(con[i]->remote_endpoint().port()) + " \"" +getdesp(p).second+ "\"\n";
+			str += "[" + to_string(i) + "] " + con[i]->remote_endpoint().address().to_string() + ":" + to_string(con[i]->remote_endpoint().port()) + " \"" + getdesp(p).second + "\"\n";
 		}
 		return str;
 	}
@@ -438,20 +378,20 @@ namespace handle {
 			}
 			string ret = BDX::runcmdEx(cmd).second;
 			if (msgid.Set())
-				ws_send_now_connection(makejson({ "operate", "runcmd" }, { "Auth", "Success" }, { "text", ret }, { "msgid",string(msgid.val()) }));
+				ws_send_now_connection(makejson({ { "operate", "runcmd" }, { "Auth", "Success" }, { "text", ret }, { "msgid",string(msgid.val()) } }));
 			else
-				ws_send_now_connection(makejson({ "operate", "runcmd" }, { "Auth", "Success" }, { "text", ret }));
+				ws_send_now_connection(makejson({ { "operate", "runcmd" }, { "Auth", "Success" }, { "text", ret } }));
 			cout << "[" << gettime() << " INFO][WSM] [" << "Running Cmd" << "] " << "[Auth]Success " << "[CMD][" << cmd << "] " << endl;
 		}
 		else {
 			if (msgid.Set())
-				ws_send_now_connection(makejson({ "operate", "runcmd" }, { "Auth", "Failed" }, { "text", "Password Not Match" }, { "msgid",string(msgid.val()) }));
+				ws_send_now_connection(makejson({ { "operate", "runcmd" }, { "Auth", "Failed" }, { "text", "Password Not Match" }, { "msgid",string(msgid.val()) } }));
 			else
-				ws_send_now_connection(makejson({ "operate", "runcmd" }, { "Auth", "Failed" }, { "text", "Password Not Match" }));
+				ws_send_now_connection(makejson({ { "operate", "runcmd" }, { "Auth", "Failed" }, { "text", "Password Not Match" } }));
 			cout << "[" << gettime() << " INFO][WSM] [" << "Running Cmd" << "] " << "[Auth]Fail " << "[CMD]NotExcuted" << endl;
 		}
 	}
-	inline void setdespcription(string msg,string server) {
+	inline void setdespcription(string msg, string server) {
 		string desp;
 		rapidjson::Document document;
 		document.Parse(msg.c_str());
@@ -501,15 +441,7 @@ namespace handle {
 		}
 	}*/
 };
-inline string& repall(string& str, const string& olds, const string& news)
-{
-	string::size_type pos = 0;
-	while ((pos = str.find(olds)) != string::npos)
-	{
-		str = str.replace(str.find(olds), olds.length(), news);
-	}
-	return str;
-}
+
 inline void fw(std::string filen, std::string instr) {
 	if (logmsg) {
 		std::ofstream outfile;
@@ -534,12 +466,12 @@ inline void ws() {
 		if (parse != document.MemberEnd()) {
 			op = parse->value.GetString();
 		}
-		cout << "[" << gettime() << " INFO][WSM] [" << "RecivedMsg" << "] " /*<< in_msg*/ << " [" << connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) <<"]"<< endl;
+		cout << "[" << gettime() << " INFO][WSM] [" << "RecivedMsg" << "] " /*<< in_msg*/ << " [" << connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) << "]" << endl;
 		rapidjson::Value::ConstMemberIterator parse2 = document.FindMember("passwd");
 		if (parse2 != document.MemberEnd()) {
 			passwd = parse2->value.GetString();
 			//cout << "PasswdIn: " << passwd;
-			passwdmatch = auth(passwd,in_msg);
+			passwdmatch = auth(passwd, in_msg);
 			if (passwdmatch) {
 				passwdmatch = true;
 			}
@@ -574,7 +506,7 @@ inline void ws() {
 
 		}
 		else {
-			ws_send_now_connection(makejson({ "operate", "unknow" }, { "Auth", "unknow" }, { "text", "Error Read Json>Operate" }));
+			ws_send_now_connection(makejson({ { "operate", "unknow" }, { "Auth", "unknow" }, { "text", "Error Read Json>Operate" } }));
 			cout << "[" << gettime() + " Error][WSE] [Error Msg] Error When Read Json(Operate) form \"" << connection->remote_endpoint().address().to_string() + ":" + to_string(connection->remote_endpoint().port()) << "\"" << endl;
 		}
 	};
@@ -618,19 +550,19 @@ inline void ws() {
 
 inline void reglist() {
 	addListener([](PlayerChatEvent& event) {
-		ws_send_all(makejson({ "operate", "onmsg" }, { "target", event.getPlayer().getName() }, { "text", event.getChat() }));
+		ws_send_all(makejson({ { "operate", "onmsg" }, { "target", event.getPlayer().getName() }, { "text", event.getChat() } }));
 	});
 	addListener([](PlayerJoinEvent& event) {
-		ws_send_all(makejson({ "operate", "onjoin" }, { "target", event.getPlayer().getName() }, { "text", event.getPlayer().getIP() }));
+		ws_send_all(makejson({ { "operate", "onjoin" }, { "target", event.getPlayer().getName() }, { "text", event.getPlayer().getIP() } }));
 	});
 	addListener([](PlayerLeftEvent& event) {
-		ws_send_all(makejson({ "operate", "onleft" }, { "target", event.getPlayer().getName() }, { "text", "Lefted server" }));
+		ws_send_all(makejson({ { "operate", "onleft" }, { "target", event.getPlayer().getName() }, { "text", "Lefted server" } }));
 	});
 	addListener([](PlayerCMDEvent& event) {
-		ws_send_all(makejson({ "operate", "oncmd" }, { "target", event.getPlayer().getName() }, { "text",  string(event.getCMD()) }));
+		ws_send_all(makejson({ { "operate", "oncmd" }, { "target", event.getPlayer().getName() }, { "text",  string(event.getCMD())} }));
 	});
 	addListener([](PlayerChangeDimEvent& event) {
-		ws_send_all(makejson({ "operate","oncdim" }, { "target",event.getPlayer().getName() }, { "from",to_string(event.SrcDim) }, { "to",to_string(event.DstDim) }));
+		ws_send_all(makejson({ {"operate","oncdim" }, { "target",event.getPlayer().getName() }, { "from",to_string(event.SrcDim) }, { "to",to_string(event.DstDim) } }));
 	});
 }
 
@@ -695,17 +627,17 @@ THook(void,
 	if (enablews) {
 		string playername = _this->getNameTag();
 		ActorUniqueID src_id = a2->getEntityUniqueID();
-		//unsigned long long* cause = (unsigned long long*)a2;
+		//__int64* cause = (unsigned long long*)a2;
 		//unsigned int rcause = *(unsigned long long*)(cause + 8);
 		//string* cause_n = SymCall("?lookupCauseName@ActorDamageSource@@SAAEBV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@W4ActorDamageCause@@@Z", string * ,unsigned int)(rcause);
 		//cout << rcause <<"--"<<cause_n->c_str()<< endl;
 		Actor* src = LocateS<ServerLevel>()->fetchEntity(src_id, false);
 		if (src) {
 			string src_type_name = SymCall("?getEntityName@@YA?AV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@AEBVActor@@@Z", string, Actor*)(src);
-			ws_send_all(makejson({ "operate", "onplayerdie" }, { "target", playername }, { "source",src_type_name }));
+			ws_send_all(makejson({ { "operate", "onplayerdie" }, { "target", playername }, { "source",src_type_name } }));
 		}
 		else {
-			ws_send_all(makejson({ "operate", "onplayerdie" }, { "target", playername }, { "source","unknow" }));
+			ws_send_all(makejson({ { "operate", "onplayerdie" }, { "target", playername }, { "source","unknow" } }));
 		}
 	}
 	original(_this, a2);

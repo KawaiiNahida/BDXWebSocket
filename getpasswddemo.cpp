@@ -3,6 +3,13 @@
 #include <chrono>
 #include <string>
 #include <openssl\md5.h>
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include "../BehaviorLog/csvwriter.h"
+#pragma warning(disable:4996)
+
+
 using namespace std;
 #pragma warning(disable:4996)
 template <size_t size> void u2a(char(&buf)[size], int num) {
@@ -49,40 +56,27 @@ std::string gettime() {
 	str += buf;
 	return str;
 }
-string getbody(string in_msg) {
-	for (int a = 0; a == 0;) {
-		if (in_msg.find("\"passwd\"") != string::npos) {
-			int len = in_msg.length() - in_msg.find(",\"passwd\"");
-			if (len > 44) {
-				if (in_msg.find(",\"passwd\"") != string::npos) {
-					in_msg = in_msg.replace(in_msg.find(",\"passwd\""), 44, "");
-				}
-				if (in_msg.find("{\"passwd\":\"") != string::npos) {
-					in_msg = in_msg.replace(in_msg.find("{\"passwd\"") + 1, 44, "");
-				}
-			}
-			else { a = 1; }
-		}
-		else {
-			a = 1;
-		}
-
-	}
-	std::cout << in_msg << endl;
-	return in_msg;
-}
 pair<string, string> getpasswd(string msg, string passwd) {
-	string bp = getbody(msg);
-	cout << "bp" << bp << endl;
-	string pw = passwd + gettime() + "@" + bp;
+	string pw = passwd + gettime() + "@"+msg;
 	return { MD5(pw),pw };
-}
+}/*
+typedef pair<string, string> twos;
+string makejson(initializer_list<twos> args)
+{
+	rapidjson::StringBuffer mmsg;
+	rapidjson::Writer<rapidjson::StringBuffer> writer(mmsg);
+	writer.StartObject();
+	for (auto count = args.begin(); count != args.end(); count++) {
+		writer.Key(count->first.c_str());
+		writer.String(count->second.c_str());
+	}
+	writer.EndObject();
+	return mmsg.GetString();
+}*/
 int main()
 {
-	auto tes1 = getpasswd("{\"passwd\":\"" + MD5("t") + "\",\"text\":\"tes\"}", "pw");
-	auto tes2 = getpasswd("{\"text\":\"tes2\",\"passwd\":\"" + MD5("t") + "\"}", "pw");
+	auto tes1 = getpasswd("{\"passwd\":\"\",\"text\":\"tes\"}", "pw");
+	cout << "{\"passwd\":\"" + tes1.first + "\",\"text\":\"tes\"}" << endl;
 	std::cout << tes1.first << " - " << tes1.second << endl;
-	std::cout <<tes2.first << " - " << tes2.second << endl;
-	cout << MD5("") << endl;
 	system("pause");
 }

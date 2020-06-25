@@ -239,32 +239,10 @@ std::string gettime1r() {
 	str += buf;
 	return str;
 }
-string getbody(string in_msg) {
-	for (int a = 0; a == 0;) {
-		if (in_msg.find("\"passwd\"") != string::npos) {
-			int len = in_msg.length() - in_msg.find(",\"passwd\"");
-			if (len > 44) {
-				if (in_msg.find(",\"passwd\"") != string::npos) {
-					in_msg = in_msg.replace(in_msg.find(",\"passwd\""), 44, "");
-				}
-				if (in_msg.find("{\"passwd\":\"") != string::npos) {
-					in_msg = in_msg.replace(in_msg.find("{\"passwd\"") + 1, 45, "");
-				}
-			}
-			else { a = 1; }
-		}
-		else {
-			a = 1;
-		}
 
-	}
-	std::cout << in_msg << endl;
-	return in_msg;
-}
 //{"passwd":"%pwd%","operate":"runcmd","cmd":"list"}
 pair<string, string> getpasswd(string msg, string passwd) {
-	string bp = getbody(msg);
-	string pw = passwd + gettime() + "@" + bp;
+	string pw = passwd + gettime() + "@" + msg;
 	return { MD5(pw),pw };
 }
 int main(int argc, char* args[]) {
@@ -276,7 +254,7 @@ int main(int argc, char* args[]) {
 	cout << "  \\ \\/  \\/ / _ \\ '_ \\\\___ \\ / _ \\ / __| |/ / _ \\ __| |    | | |/ _ \\ '_ \\| __|" << endl;
 	cout << "   \\  /\\  /  __/ |_) |___) | (_) | (__|   <  __/ |_| |____| | |  __/ | | | |_" << endl;
 	cout << "    \\/  \\/ \\___|_.__/_____/ \\___/ \\___|_|\\_\\___|\\__|\\_____|_|_|\\___|_| |_|\\__|" << endl;
-	string title = "BDXWebsocket TestClient ";
+	string title = "BDXWebsocket TestClient HandModeOnly";
 	SetConsoleTitleA(title.c_str());
 	std::cout << "ServerAddress: ws://";
 	std::getline(cin, addr);
@@ -288,70 +266,37 @@ int main(int argc, char* args[]) {
 	std::cin.clear();
 	title = title + " BPW:" + passwd;
 	SetConsoleTitleA(title.c_str());
-	std::cout << "Mode: ";
+	/*std::cout << "Mode: ";
 	string mode;
 	std::getline(cin, mode);
 	std::cin.clear();
 	title = title + " Mode:" + mode;
 	SetConsoleTitleA(title.c_str());
+	*/
 	thread t(wsclient);
 	t.detach();
 	Sleep(100);
 	scon->send("{\"operate\":\"setdesp\",\"desp\":\"CmdClientByWangYneos\"}");
-	if (mode == "hand") {
+	//if (mode == "hand") {
 		for (;;) {
 			Sleep(10);
 			cout << "Tip: use %pwd% to gen passwd" << endl;
-			//{"passwd":"%pwd%","help":"a"}
+			//{"passwd":"%pwd%","operate":"runcmd","cmd":"list"}
 			std::string inmsg;
 			std::getline(cin, inmsg);
 			std::cin.clear();
-			
+			string inmsg2 = inmsg;
 			if (inmsg.find("%pwd%")) {
-				repall(inmsg, "%pwd%", MD5(""));
+				repall(inmsg, "%pwd%","");
 			}
-			string pw = getpasswd(inmsg, passwd).first;
-			if (inmsg.find("D41D8CD98F00B204E9800998ECF8427E")) {
-				repall(inmsg, "D41D8CD98F00B204E9800998ECF8427E", pw);
+			auto pw = getpasswd(inmsg, passwd);
+			if (inmsg2.find("%pwd%")) {
+				repall(inmsg2, "%pwd%", pw.first);
 			}
-			scon->send(inmsg);
+			cout << pw.second << endl;
+			scon->send(inmsg2);
 			inmsg = "";
 		}
-	}
-	if (mode == "auto") {
-		/*std::cout << "submode: ";
-		string subm;
-		std::getline(cin, subm);
-		title = title + " SubMode:" + subm;
-		SetConsoleTitleA(title.c_str());
-		std::cin.clear();
-		system("clear");
-		*/
-		for (;;) {
-			Sleep(10);
-
-			std::cin.clear();
-			cout << "wait for input" << endl;
-			std::string inmsg;
-			std::getline(cin, inmsg);
-			std::cin.clear();
-			if (inmsg == "close") {
-				scon->send_close(1000);
-			}
-			else {
-				string cmd = "{\"operate\":\"runcmd\",\"passwd\":\"%pwd%\",\"cmd\":\"" + inmsg + "\" }";
-				if (cmd.find("%pwd%")) {
-					repall(cmd, "%pwd%", MD5(""));
-				}
-				string apw = getpasswd(cmd, passwd).first;
-				if (cmd.find("D41D8CD98F00B204E9800998ECF8427E")) {
-					repall(cmd, "D41D8CD98F00B204E9800998ECF8427E", apw);
-				}
-				cout << "SendOut Msg: " << cmd << endl;
-				scon->send(cmd);
-				inmsg = "";
-			}
-		}
-	}
+	//}
 	return 0;
 }

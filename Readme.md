@@ -114,6 +114,7 @@
 >```
 
 ## 密文数据包
+- 加密包
 ```json
 {
     "type": "encrypted",
@@ -123,6 +124,25 @@
     }
 }
 ```
-
+- 解密错误
+```json
+{
+    "type": "pack",
+    "cause": "decodefailed",
+    "params": {
+        "msg": "格式错误:Unexpected character encountered while parsing value: d. Path '', line 0, position 0."
+    }
+}
+```
+- 请求无效（裸包试图执行搞权限操作）
+```json
+{
+    "type": "pack",
+    "cause": "invalidrequest",
+    "params": {
+        "msg": "未加密的初始包不予执行！"
+    }
+}
+```
 ## Way to get the passwd
 see passwdgetdemo.cpp

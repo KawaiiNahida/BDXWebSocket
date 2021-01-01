@@ -76,7 +76,6 @@
 >    "cause": "runcmdfeedback",
 >    "params": {
 >        "id": 0,
->        "success": true,
 >        "result": ">命令执行结果<"
 >    }
 >}
@@ -84,11 +83,9 @@
 >```json
 >{
 >    "type":"pack",
->    "cause": "runcmdfeedback",
+>    "cause": "decodefailed",//密匙不匹配无法解密
 >    "params": {
->        "id": 0,
->        "success": false,
->        "result": "密匙不匹配，命令未执行！"
+>        "msg": "密匙不匹配，无法解密数据包！"
 >    }
 >}
 >```

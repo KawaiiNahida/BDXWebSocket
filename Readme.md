@@ -1,16 +1,5 @@
 # WebSocketAPI
 
-## 玩家消息(服务端发出
-## player send a message
-```json
-{
-    "cause": "chat",
-    "params": {
-        "sender": "WangYneos",
-        "text": "HelloWorld"
-    }
-}
-```
 
 ## 玩家加入(服务端发出
 ## when a playe join the server
@@ -39,7 +28,6 @@
     }
 }
 ```
-
 ## 玩家使用命令(服务端发出
 ## when the player use a command
 ```json
@@ -51,6 +39,18 @@
     }
 }
 ```
+## 玩家消息(服务端发出
+## player send a message
+```json
+{
+    "cause": "chat",
+    "params": {
+        "sender": "WangYneos",
+        "text": "HelloWorld"
+    }
+}
+```
+
 
 ## WS客户端控制命令
 ## WebSocket Client execute a command
@@ -72,7 +72,7 @@
 >    "params": {
 >        "id": 0,
 >        "success": true,
->        "addition": ">命令执行结果<"
+>        "result": ">命令执行结果<"
 >    }
 >}
 >```
@@ -82,7 +82,7 @@
 >    "params": {
 >        "id": 0,
 >        "success": false,
->        "addition": "密匙不匹配，命令未执行！"
+>        "result": "密匙不匹配，命令未执行！"
 >    }
 >}
 >```

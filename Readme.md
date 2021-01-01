@@ -5,6 +5,7 @@
 ## when a playe join the server
 ```json
 {
+    "type":"pack",
     "cause": "join",
     "params": {
         "sender": "WangYneos",
@@ -19,6 +20,7 @@
 ## when the player left the server
 ```json
 {
+    "type":"pack",
     "cause": "left",
     "params": {
         "sender": "gxh2004",
@@ -32,6 +34,7 @@
 ## when the player use a command
 ```json
 {
+    "type":"pack",
     "cause": "cmd",
     "params": {
         "sender": "gxh2004",
@@ -43,6 +46,7 @@
 ## player send a message
 ```json
 {
+    "type":"pack",
     "cause": "chat",
     "params": {
         "sender": "WangYneos",
@@ -57,6 +61,7 @@
 > - 发送命令(不需要斜杠)
 >```json
 >{
+>    "type":"pack",
 >    "action": "runcmdrequest",
 >    "params": {
 >        "cmd": "kick WangYneos nmsl",
@@ -68,6 +73,7 @@
 > - - 服务端返回
 >```json 
 >{
+>    "type":"pack",
 >    "cause": "runcmdfeedback",
 >    "params": {
 >        "id": 0,
@@ -78,6 +84,7 @@
 >```
 >```json
 >{
+>    "type":"pack",
 >    "cause": "runcmdfeedback",
 >    "params": {
 >        "id": 0,
@@ -90,6 +97,7 @@
 > - 发送全服消息(计划)
 >```json
 >{
+>    "type":"pack",
 >    "action": "broadcast",
 >    "params": {
 >        "text": "欢迎来到xxx",
@@ -101,6 +109,7 @@
 > - 发送个人消息(计划)
 >```json
 >{
+>    "type":"pack",
 >    "action": "tellraw",
 >    "params": {
 >        "target": "gxh2004",
@@ -110,9 +119,14 @@
 >}
 >```
 
-
-## 密码获得规则
-明文密码 + "@" + 不带token项的压缩JSON内容 --> AES256加密
+## 密文数据包
+```json
+{
+    "type":"encrypted",
+    "mode": "AES256",
+    "raw":"xxxxxxxxx"
+}
+```
 
 ## Way to get the passwd
 see passwdgetdemo.cpp

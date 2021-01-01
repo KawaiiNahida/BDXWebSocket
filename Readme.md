@@ -54,8 +54,7 @@
 
 ## WS客户端控制命令
 ## WebSocket Client execute a command
->发送
->send
+>发送命令(不需要斜杠)
 ```json
 {
     "action": "runcmdrequest",
@@ -67,8 +66,6 @@
 }
 ```
 >服务端返回
->
->feedback by server
 ```json 
 {
     "cause": "runcmdfeedback",
@@ -89,6 +86,22 @@
     }
 }
 ```
+
+
+
+
+
+>发送全服消息
+```json
+{
+    "action": "broadcast",
+    "params": {
+        "text": "欢迎来到xxx",
+        "token": "xxxxxxxxxx"
+    }
+}
+```
+
 
 ## 密码获得规则
 见passwdgetdemo.cpp

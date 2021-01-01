@@ -112,7 +112,7 @@
 
 
 ## 密码获得规则
-见passwdgetdemo.cpp
+明文密码 + "@" + 不带token项的压缩JSON内容 --> AES256加密
 
 ## Way to get the passwd
 see passwdgetdemo.cpp

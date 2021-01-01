@@ -65,8 +65,7 @@
 >    "action": "runcmdrequest",
 >    "params": {
 >        "cmd": "kick WangYneos nmsl",
->        "id": 0,
->        "token": "xxxxxxxxxx"
+>        "id": 0
 >    }
 >}
 >```
@@ -100,8 +99,7 @@
 >    "type":"pack",
 >    "action": "broadcast",
 >    "params": {
->        "text": "欢迎来到xxx",
->        "token": "xxxxxxxxxx"
+>        "text": "欢迎来到xxx"
 >    }
 >}
 >```
@@ -113,8 +111,7 @@
 >    "action": "tellraw",
 >    "params": {
 >        "target": "gxh2004",
->        "text": "欢迎来到xxx",
->        "token": "xxxxxxxxxx"
+>        "text": "欢迎来到xxx"
 >    }
 >}
 >```

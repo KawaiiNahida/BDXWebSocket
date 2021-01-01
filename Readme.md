@@ -4,7 +4,7 @@
 ## player send a message
 ```json
 {
-    "action": "chat",
+    "cause": "chat",
     "params": {
         "sender": "WangYneos",
         "text": "HelloWorld"
@@ -16,7 +16,7 @@
 ## when a playe join the server
 ```json
 {
-    "action": "join",
+    "cause": "join",
     "params": {
         "sender": "WangYneos",
         "xuid": "",
@@ -30,7 +30,7 @@
 ## when the player left the server
 ```json
 {
-    "action": "left",
+    "cause": "left",
     "params": {
         "sender": "gxh2004",
         "xuid": "",
@@ -44,7 +44,7 @@
 ## when the player use a command
 ```json
 {
-    "action": "cmd",
+    "cause": "cmd",
     "params": {
         "sender": "gxh2004",
         "cmd": "/kill @s"
@@ -71,7 +71,7 @@
 >feedback by server
 ```json 
 {
-    "action": "runcmdfeedback",
+    "cause": "runcmdfeedback",
     "params": {
         "id": 0,
         "success": true,
@@ -81,7 +81,7 @@
 ```
 ```json
 {
-    "action": "runcmdfeedback",
+    "cause": "runcmdfeedback",
     "params": {
         "id": 0,
         "success": false,

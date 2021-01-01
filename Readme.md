@@ -122,9 +122,11 @@
 ## 密文数据包
 ```json
 {
-    "type":"encrypted",
-    "mode": "AES256",
-    "raw":"xxxxxxxxx"
+    "type": "encrypted",
+    "params": {
+        "mode": "AES256",
+        "raw": "xxxxxxxxx"
+    }
 }
 ```
 

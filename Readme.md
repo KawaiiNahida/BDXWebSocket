@@ -54,53 +54,61 @@
 
 ## WS客户端控制命令
 ## WebSocket Client execute a command
->发送命令(不需要斜杠)
-```json
-{
-    "action": "runcmdrequest",
-    "params": {
-        "cmd": "kick WangYneos nmsl",
-        "id": 0,
-        "token": "xxxxxxxxxx"
-    }
-}
-```
->服务端返回
-```json 
-{
-    "cause": "runcmdfeedback",
-    "params": {
-        "id": 0,
-        "success": true,
-        "addition": ">命令执行结果<"
-    }
-}
-```
-```json
-{
-    "cause": "runcmdfeedback",
-    "params": {
-        "id": 0,
-        "success": false,
-        "addition": "密匙不匹配，命令未执行！"
-    }
-}
-```
-
-
-
-
-
->发送全服消息
-```json
-{
-    "action": "broadcast",
-    "params": {
-        "text": "欢迎来到xxx",
-        "token": "xxxxxxxxxx"
-    }
-}
-```
+> - 发送命令(不需要斜杠)
+>```json
+>{
+>    "action": "runcmdrequest",
+>    "params": {
+>        "cmd": "kick WangYneos nmsl",
+>        "id": 0,
+>        "token": "xxxxxxxxxx"
+>    }
+>}
+>```
+> - - 服务端返回
+>```json 
+>{
+>    "cause": "runcmdfeedback",
+>    "params": {
+>        "id": 0,
+>        "success": true,
+>        "addition": ">命令执行结果<"
+>    }
+>}
+>```
+>```json
+>{
+>    "cause": "runcmdfeedback",
+>    "params": {
+>        "id": 0,
+>        "success": false,
+>        "addition": "密匙不匹配，命令未执行！"
+>    }
+>}
+>```
+---
+> - 发送全服消息(计划)
+>```json
+>{
+>    "action": "broadcast",
+>    "params": {
+>        "text": "欢迎来到xxx",
+>        "token": "xxxxxxxxxx"
+>    }
+>}
+>```
+---
+> - 发送个人消息(计划)
+>```json
+>{
+>    "action": "tellraw",
+>    "params": {
+>        "target": "gxh2004",
+>        "text": "欢迎来到xxx",
+>        "token": "xxxxxxxxxx"
+>    }
+>}
+>```
 
 
 ## 密码获得规则

@@ -5,12 +5,10 @@
 ## when a playe join the server
 ```json
 {
-    "type":"pack"
     "cause": "join",
     "params": {
         "sender": "WangYneos",
         "xuid": "",
-        "uuid": "",
         "ip": "target's ip address"
     }
 }
@@ -20,7 +18,6 @@
 ## when the player left the server
 ```json
 {
-    "type":"pack",
     "cause": "left",
     "params": {
         "sender": "gxh2004",
@@ -34,7 +31,6 @@
 ## when the player use a command
 ```json
 {
-    "type":"pack",
     "cause": "cmd",
     "params": {
         "sender": "gxh2004",
@@ -46,7 +42,6 @@
 ## player send a message
 ```json
 {
-    "type":"pack",
     "cause": "chat",
     "params": {
         "sender": "WangYneos",

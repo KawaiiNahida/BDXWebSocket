@@ -5,7 +5,7 @@
 ## when a playe join the server
 ```json
 {
-    "type":"pack",
+    "type":"pack"
     "cause": "join",
     "params": {
         "sender": "WangYneos",
@@ -83,14 +83,14 @@
 >```json
 >{
 >    "type":"pack",
->    "cause": "decodefailed",//密匙不匹配无法解密
+>    "cause": "authfailed",//密匙不匹配无法解密
 >    "params": {
 >        "msg": "密匙不匹配，无法解密数据包！"
 >    }
 >}
 >```
 ---
-> - 发送全服消息(计划)
+> - 发送全服消息(计划)(client side)
 >```json
 >{
 >    "type":"pack",
@@ -101,7 +101,7 @@
 >}
 >```
 ---
-> - 发送个人消息(计划)
+> - 发送个人消息(计划)(client side)
 >```json
 >{
 >    "type":"pack",
@@ -128,7 +128,7 @@
 ```json
 {
     "type": "pack",
-    "cause": "decodefailed",
+    "cause": "authfailed",
     "params": {
         "msg": "格式错误:Unexpected character encountered while parsing value: d. Path '', line 0, position 0."
     }
@@ -138,11 +138,11 @@
 ```json
 {
     "type": "pack",
-    "cause": "invalidrequest",
+    "cause": "error",
     "params": {
+        "errortype":"authfailed",
         "msg": "未加密的初始包不予执行！"
     }
 }
 ```
-## Way to get the passwd
-see passwdgetdemo.cpp
+##Uses AES256/ECB/PCK5Padding

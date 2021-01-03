@@ -56,7 +56,7 @@
 > - 发送命令(不需要斜杠)
 >```json
 >{
->    "type":"pack",
+>    "is_encrypt":true,
 >    "action": "runcmdrequest",
 >    "params": {
 >        "cmd": "kick WangYneos nmsl",
@@ -67,7 +67,6 @@
 > - - 服务端返回
 >```json 
 >{
->    "type":"pack",
 >    "cause": "runcmdfeedback",
 >    "params": {
 >        "id": 0,

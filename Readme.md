@@ -76,7 +76,6 @@
 >```
 >```json
 >{
->    "type":"pack",
 >    "cause": "authfailed",//密匙不匹配无法解密
 >    "params": {
 >        "msg": "密匙不匹配，无法解密数据包！"
@@ -87,7 +86,6 @@
 > - 发送全服消息(计划)(client side)
 >```json
 >{
->    "type":"pack",
 >    "action": "broadcast",
 >    "params": {
 >        "text": "欢迎来到xxx"
@@ -112,24 +110,11 @@
 ```json
 {
     "type": "encrypted",
-    "params": {
-        "mode": "AES256",
-        "raw": "xxxxxxxxx"
-    }
+    "params": "raw_data"
 }
 ```
 - 服务器端：直接返回加密过的json
 
-- 解密错误
-```json
-{
-    "type": "pack",
-    "cause": "authfailed",
-    "params": {
-        "msg": "格式错误:Unexpected character encountered while parsing value: d. Path '', line 0, position 0."
-    }
-}
-```
 - 请求无效（解析包出错）
 ```json
 {

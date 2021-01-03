@@ -134,14 +134,13 @@
     }
 }
 ```
-- 请求无效（裸包试图执行搞权限操作）
+- 请求无效（解析包出错）
 ```json
 {
     "type": "pack",
     "cause": "error",
     "params": {
-        "errortype":"authfailed",
-        "msg": "未加密的初始包不予执行！"
+        "msg": "JsonParseError [type] Not Found or Not a string"
     }
 }
 ```

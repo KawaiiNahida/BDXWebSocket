@@ -110,12 +110,25 @@
 ```json
 {
     "type": "encrypted",
-    "params": "raw_data"
+
+    "params": {
+        "mode": "aes_cbc_pck7padding",
+        "raw": "base64 String"
+    }
 }
 ```
-- 服务器端：直接返回加密过的json
+- 解密错误
+```json
+{
+    "type": "pack",
+    "cause": "decodefailed",
+    "params": {
+        "msg": "JSON格式错误、AES解密错误..."
+    }
+}
+```
+- 请求无效（裸包试图执行搞权限操作）
 
-- 请求无效（解析包出错）
 ```json
 {
     "type": "pack",
@@ -124,5 +137,5 @@
         "msg": "JsonParseError [type] Not Found or Not a string"
     }
 }
+
 ```
-##Uses AES256/ECB/PCK5Padding

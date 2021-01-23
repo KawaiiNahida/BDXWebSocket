@@ -5,12 +5,10 @@
 ## when a playe join the server
 ```json
 {
-    "type":"pack",
     "cause": "join",
     "params": {
         "sender": "WangYneos",
         "xuid": "",
-        "uuid": "",
         "ip": "target's ip address"
     }
 }
@@ -20,7 +18,6 @@
 ## when the player left the server
 ```json
 {
-    "type":"pack",
     "cause": "left",
     "params": {
         "sender": "gxh2004",
@@ -34,7 +31,6 @@
 ## when the player use a command
 ```json
 {
-    "type":"pack",
     "cause": "cmd",
     "params": {
         "sender": "gxh2004",
@@ -46,7 +42,6 @@
 ## player send a message
 ```json
 {
-    "type":"pack",
     "cause": "chat",
     "params": {
         "sender": "WangYneos",
@@ -61,7 +56,7 @@
 > - 发送命令(不需要斜杠)
 >```json
 >{
->    "type":"pack",
+>    "is_encrypt":true,
 >    "action": "runcmdrequest",
 >    "params": {
 >        "cmd": "kick WangYneos nmsl",
@@ -72,7 +67,6 @@
 > - - 服务端返回
 >```json 
 >{
->    "type":"pack",
 >    "cause": "runcmdfeedback",
 >    "params": {
 >        "id": 0,
@@ -82,18 +76,16 @@
 >```
 >```json
 >{
->    "type":"pack",
->    "cause": "decodefailed",//密匙不匹配无法解密
+>    "cause": "authfailed",//密匙不匹配无法解密
 >    "params": {
 >        "msg": "密匙不匹配，无法解密数据包！"
 >    }
 >}
 >```
 ---
-> - 发送全服消息(计划)
+> - 发送全服消息(计划)(client side)
 >```json
 >{
->    "type":"pack",
 >    "action": "broadcast",
 >    "params": {
 >        "text": "欢迎来到xxx"
@@ -101,7 +93,7 @@
 >}
 >```
 ---
-> - 发送个人消息(计划)
+> - 发送个人消息(计划)(client side)
 >```json
 >{
 >    "type":"pack",
@@ -114,10 +106,11 @@
 >```
 
 ## 密文数据包
-- 加密包
+- 加密包(client)
 ```json
 {
     "type": "encrypted",
+
     "params": {
         "mode": "aes_cbc_pck7padding",
         "raw": "base64 String"
@@ -135,12 +128,14 @@
 }
 ```
 - 请求无效（裸包试图执行搞权限操作）
+
 ```json
 {
     "type": "pack",
-    "cause": "invalidrequest",
+    "cause": "error",
     "params": {
-        "msg": "未加密的初始包不予执行！"
+        "msg": "JsonParseError [type] Not Found or Not a string"
     }
 }
+
 ```

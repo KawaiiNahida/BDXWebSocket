@@ -119,8 +119,8 @@
 {
     "type": "encrypted",
     "params": {
-        "mode": "AES256",
-        "raw": "xxxxxxxxx"
+        "mode": "aes_cbc_pck7padding",
+        "raw": "base64 String"
     }
 }
 ```
@@ -130,7 +130,7 @@
     "type": "pack",
     "cause": "decodefailed",
     "params": {
-        "msg": "格式错误:Unexpected character encountered while parsing value: d. Path '', line 0, position 0."
+        "msg": "JSON格式错误、AES解密错误..."
     }
 }
 ```
@@ -144,5 +144,3 @@
     }
 }
 ```
-## Way to get the passwd
-see passwdgetdemo.cpp

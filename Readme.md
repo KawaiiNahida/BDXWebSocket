@@ -10,7 +10,6 @@
     "params": {
         "sender": "WangYneos",
         "xuid": "",
-        "uuid": "",
         "ip": "target's ip address"
     }
 }
@@ -24,9 +23,7 @@
     "cause": "left",
     "params": {
         "sender": "gxh2004",
-        "xuid": "",
-        "uuid": "",
-        "ip": "target's ip address"
+        "xuid": ""
     }
 }
 ```

@@ -3,7 +3,7 @@
 
 ## 玩家加入(服务端发出
 ## when a playe join the server
-```json
+```jsonc
 {
     "type":"pack",
     "cause": "join",
@@ -17,7 +17,7 @@
 
 ## 玩家退出(服务端发出
 ## when the player left the server
-```json
+```jsonc
 {
     "type":"pack",
     "cause": "left",
@@ -29,7 +29,7 @@
 ```
 ## 玩家使用命令(服务端发出
 ## when the player use a command
-```json
+```jsonc
 {
     "type":"pack",
     "cause": "cmd",
@@ -41,7 +41,7 @@
 ```
 ## 玩家消息(服务端发出
 ## player send a message
-```json
+```jsonc
 {
     "type":"pack",
     "cause": "die",
@@ -53,16 +53,24 @@
     }
 }
 ```
-## 玩家死亡(服务端发出
+## 生物死亡(服务端发出
 ## player send a message
 ```json
 {
-    "type":"pack",
-    "cause": "chat",
-    "params": {
-        "sender": "WangYneos",
-        "text": "HelloWorld"
+  "type": "pack",
+  "cause": "mobdie",
+  "params": {
+    "mobtype": "entity.player.name",//实体类型
+    "mobname": "gxh2004",//实体名称
+    "dmcase": 0,//伤害源ID
+    "srctype": "",//伤害源类型
+    "srcname": "",//伤害源名称
+    "XYZ": {
+      "x": 1072.10034,
+      "y": 69.62001,
+      "z": 14.9382544
     }
+  }
 }
 ```
 
@@ -70,7 +78,7 @@
 ## WS客户端控制命令
 ## WebSocket Client execute a command
 > - 发送命令(不需要斜杠)
->```json
+>```jsonc
 >{
 >    "type":"pack",
 >    "action": "runcmdrequest",
@@ -81,7 +89,7 @@
 >}
 >```
 > - - 服务端返回
->```json 
+>```jsonc 
 >{
 >    "type":"pack",
 >    "cause": "runcmdfeedback",
@@ -91,7 +99,7 @@
 >    }
 >}
 >```
->```json
+>```jsonc
 >{
 >    "type":"pack",
 >    "cause": "decodefailed",//密匙不匹配无法解密
@@ -103,17 +111,17 @@
 ---
 ## 密文数据包
 - 加密包
-```json
+```jsonc
 {
     "type": "encrypted",
     "params": {
         "mode": "aes_cbc_pck7padding",
-        "raw": "base64 String"
+        "raw": "base64 String(from a pack json)"
     }
 }
 ```
 - 解密错误
-```json
+```jsonc
 {
     "type": "pack",
     "cause": "decodefailed",
@@ -123,7 +131,7 @@
 }
 ```
 - 请求无效（插件端要求使用加密数据包）
-```json
+```jsonc
 {
     "type": "pack",
     "cause": "invalidrequest",

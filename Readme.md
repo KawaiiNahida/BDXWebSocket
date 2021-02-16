@@ -3,7 +3,7 @@
 
 ## 玩家加入(服务端发出
 ## when a playe join the server
-```json
+```jsonc
 {
     "cause": "join",
     "params": {
@@ -16,7 +16,7 @@
 
 ## 玩家退出(服务端发出
 ## when the player left the server
-```json
+```jsonc
 {
     "cause": "left",
     "params": {
@@ -29,7 +29,7 @@
 ```
 ## 玩家使用命令(服务端发出
 ## when the player use a command
-```json
+```jsonc
 {
     "cause": "cmd",
     "params": {
@@ -40,7 +40,7 @@
 ```
 ## 玩家消息(服务端发出
 ## player send a message
-```json
+```jsonc
 {
     "cause": "chat",
     "params": {
@@ -54,7 +54,7 @@
 ## WS客户端控制命令
 ## WebSocket Client execute a command
 > - 发送命令(不需要斜杠)
->```json
+>```jsonc
 >{
 >    "is_encrypt":true,
 >    "action": "runcmdrequest",
@@ -65,7 +65,7 @@
 >}
 >```
 > - - 服务端返回
->```json 
+>```jsonc 
 >{
 >    "cause": "runcmdfeedback",
 >    "params": {
@@ -74,7 +74,7 @@
 >    }
 >}
 >```
->```json
+>```jsonc
 >{
 >    "cause": "authfailed",//密匙不匹配无法解密
 >    "params": {
@@ -84,7 +84,7 @@
 >```
 ---
 > - 发送全服消息(计划)(client side)
->```json
+>```jsonc
 >{
 >    "action": "broadcast",
 >    "params": {
@@ -94,7 +94,7 @@
 >```
 ---
 > - 发送个人消息(计划)(client side)
->```json
+>```jsonc
 >{
 >    "type":"pack",
 >    "action": "tellraw",
@@ -107,7 +107,7 @@
 
 ## 密文数据包
 - 加密包(client)
-```json
+```jsonc
 {
     "type": "encrypted",
 
@@ -118,7 +118,7 @@
 }
 ```
 - 解密错误
-```json
+```jsonc
 {
     "type": "pack",
     "cause": "decodefailed",
@@ -129,7 +129,7 @@
 ```
 - 请求无效（裸包试图执行搞权限操作）
 
-```json
+```jsonc
 {
     "type": "pack",
     "cause": "error",

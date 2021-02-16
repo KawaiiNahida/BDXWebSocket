@@ -63,6 +63,7 @@
     "mobtype": "entity.player.name",//实体类型
     "mobname": "gxh2004",//实体名称
     "dmcase": 0,//伤害源ID
+    "dmname": "",//伤害类型
     "srctype": "",//伤害源类型
     "srcname": "",//伤害源名称
     "pos": {

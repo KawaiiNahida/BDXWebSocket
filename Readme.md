@@ -53,16 +53,24 @@
     }
 }
 ```
-## 玩家死亡(服务端发出
+## 生物死亡(服务端发出
 ## player send a message
 ```json
 {
-    "type":"pack",
-    "cause": "chat",
-    "params": {
-        "sender": "WangYneos",
-        "text": "HelloWorld"
+  "type": "pack",
+  "cause": "mobdie",
+  "params": {
+    "mobtype": "entity.player.name",//实体类型
+    "mobname": "gxh2004",//实体名称
+    "dmcase": 0,//伤害源ID
+    "srctype": "",//伤害源类型
+    "srcname": "",//伤害源名称
+    "XYZ": {
+      "x": 1072.10034,
+      "y": 69.62001,
+      "z": 14.9382544
     }
+  }
 }
 ```
 

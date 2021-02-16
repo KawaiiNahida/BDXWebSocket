@@ -53,8 +53,8 @@
     }
 }
 ```
-## 生物死亡(服务端发出
-## player send a message
+## 生物死亡(服务端发出(仅限有名字（NameTag）的生物
+## Mob Die
 ```json
 {
   "type": "pack",
@@ -136,7 +136,7 @@
     "type": "pack",
     "cause": "invalidrequest",
     "params": {
-        "msg": "未加密的初始包不予执行！"
+        "msg": "未加密的初始包不予执行！此处返回消息不固定，只用于描述"
     }
 }
 ```

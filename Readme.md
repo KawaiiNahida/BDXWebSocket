@@ -53,8 +53,8 @@
     }
 }
 ```
-## 生物死亡(服务端发出
-## player send a message
+## 生物死亡(服务端发出(仅限有名字（NameTag）的生物
+## Mob Die
 ```json
 {
   "type": "pack",
@@ -63,9 +63,10 @@
     "mobtype": "entity.player.name",//实体类型
     "mobname": "gxh2004",//实体名称
     "dmcase": 0,//伤害源ID
+    "dmname": "",//伤害类型
     "srctype": "",//伤害源类型
     "srcname": "",//伤害源名称
-    "XYZ": {
+    "pos": {
       "x": 1072.10034,
       "y": 69.62001,
       "z": 14.9382544
@@ -136,7 +137,7 @@
     "type": "pack",
     "cause": "invalidrequest",
     "params": {
-        "msg": "未加密的初始包不予执行！"
+        "msg": "未加密的初始包不予执行！此处返回消息不固定，只用于描述"
     }
 }
 ```

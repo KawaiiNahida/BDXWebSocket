@@ -8,7 +8,7 @@
     "type":"pack",
     "cause": "join",
     "params": {
-        "sender": "WangYneos",
+        "sender": "ExamplePlayer",
         "xuid": "",
         "uuid": "",
         "ip": "target's ip address"
@@ -23,7 +23,7 @@
     "type":"pack",
     "cause": "left",
     "params": {
-        "sender": "gxh2004",
+        "sender": "ExamplePlayer",
         "xuid": "",
         "uuid": "",
         "ip": "target's ip address"
@@ -37,7 +37,7 @@
     "type":"pack",
     "cause": "cmd",
     "params": {
-        "sender": "gxh2004",
+        "sender": "ExamplePlayer",
         "cmd": "/kill @s"
     }
 }
@@ -47,26 +47,34 @@
 ```json
 {
     "type":"pack",
-    "cause": "die",
-    "params": {
-        "target": "WangYneos",
-        "source": "gxh2004",
-		"causecode": "114514(Not real)",
-		"cause_name": "Killed By Other Player"
-    }
-}
-```
-## 玩家死亡(服务端发出
-## player send a message
-```json
-{
-    "type":"pack",
     "cause": "chat",
     "params": {
-        "sender": "WangYneos",
+        "sender": "ExamplePlayer",
         "text": "HelloWorld"
     }
 }
+```
+## 生物死亡(服务端发出(仅限有名字（NameTag）的生物(玩家)
+## Mob Die
+```json
+{
+  "type": "pack",
+  "cause": "mobdie",
+  "params": {
+    "mobtype": "entity.player.name",//实体类型
+    "mobname": "xxx",//实体名称
+    "dmcase": 0,//伤害源ID
+    "dmname": "",//伤害类型
+    "srctype": "",//伤害源类型
+    "srcname": "",//伤害源名称
+    "pos": {
+      "x": 1072.10034,
+      "y": 69.62001,
+      "z": 14.9382544
+    }
+  }
+}
+```
 ```
 
 
@@ -78,7 +86,7 @@
 >    "type":"pack",
 >    "action": "runcmdrequest",
 >    "params": {
->        "cmd": "kick WangYneos nmsl",
+>        "cmd": "kick ExamplePlayer nmsl",
 >        "id": 0
 >    }
 >}

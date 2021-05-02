@@ -3,14 +3,13 @@
 
 ## 玩家加入(服务端发出
 ## when a playe join the server
-```json
+```jsonc
 {
     "type":"pack",
     "cause": "join",
     "params": {
         "sender": "ExamplePlayer",
         "xuid": "",
-        "uuid": "",
         "ip": "target's ip address"
     }
 }
@@ -18,21 +17,19 @@
 
 ## 玩家退出(服务端发出
 ## when the player left the server
-```json
+```jsonc
 {
     "type":"pack",
     "cause": "left",
     "params": {
         "sender": "ExamplePlayer",
-        "xuid": "",
-        "uuid": "",
-        "ip": "target's ip address"
+        "xuid": ""
     }
 }
 ```
 ## 玩家使用命令(服务端发出
 ## when the player use a command
-```json
+```jsonc
 {
     "type":"pack",
     "cause": "cmd",
@@ -44,7 +41,7 @@
 ```
 ## 玩家消息(服务端发出
 ## player send a message
-```json
+```jsonc
 {
     "type":"pack",
     "cause": "chat",
@@ -81,7 +78,7 @@
 ## WS客户端控制命令
 ## WebSocket Client execute a command
 > - 发送命令(不需要斜杠)
->```json
+>```jsonc
 >{
 >    "type":"pack",
 >    "action": "runcmdrequest",
@@ -92,7 +89,7 @@
 >}
 >```
 > - - 服务端返回
->```json 
+>```jsonc 
 >{
 >    "type":"pack",
 >    "cause": "runcmdfeedback",
@@ -102,7 +99,7 @@
 >    }
 >}
 >```
->```json
+>```jsonc
 >{
 >    "type":"pack",
 >    "cause": "decodefailed",//密匙不匹配无法解密
@@ -114,17 +111,17 @@
 ---
 ## 密文数据包
 - 加密包
-```json
+```jsonc
 {
     "type": "encrypted",
     "params": {
         "mode": "aes_cbc_pck7padding",
-        "raw": "base64 String"
+        "raw": "base64 String(from a pack json)"
     }
 }
 ```
 - 解密错误
-```json
+```jsonc
 {
     "type": "pack",
     "cause": "decodefailed",
@@ -134,12 +131,12 @@
 }
 ```
 - 请求无效（插件端要求使用加密数据包）
-```json
+```jsonc
 {
     "type": "pack",
     "cause": "invalidrequest",
     "params": {
-        "msg": "未加密的初始包不予执行！"
+        "msg": "未加密的初始包不予执行！此处返回消息不固定，只用于描述"
     }
 }
 ```

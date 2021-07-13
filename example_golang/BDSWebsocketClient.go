@@ -201,13 +201,20 @@ func actionSwitch(act map[string]interface{}) {
 		return
 	}
 }
-func wsHandler(Connection *websocket.Conn) {
+func wsHandler() {
 	done := make(chan struct{})
 	defer close(done)
 	for {
+		if Connection == nil {
+			fmt.Println("Connection is Nil")
+			return
+		}
 		_, message, err := Connection.ReadMessage()
 		if err != nil {
 			log.Println("read:", err)
+			Connection.Close()
+			initws(u.String())
+
 			return
 		}
 		log.Printf("recv: %s", message)
@@ -258,6 +265,22 @@ func wsHandler(Connection *websocket.Conn) {
 		}
 	}
 }
+
+var Connection *websocket.Conn
+var u url.URL
+
+func initws(url string) {
+	var err error
+	Connection, _, err = websocket.DefaultDialer.Dial(url, nil)
+	if err != nil {
+		log.Println("dial:", err)
+		Connection = nil
+		initws(url)
+	}
+	go wsHandler()
+	fmt.Println("Connected!")
+}
+
 func main() {
 	//interrupt := make(chan os.Signal, 1)
 	//signal.Notify(interrupt, os.Interrupt)
@@ -268,26 +291,26 @@ func main() {
 	fmt.Scanln(&path)
 	fmt.Print("passwd > ")
 	fmt.Scanln(&passwd)
+	// addr = "127.0.0.1:8800"
+	// path = "/mc"
+	// passwd = "passwd"
 	md5 := md5.Sum([]byte(passwd))
 	md5Passwd = []byte(fmt.Sprintf("%X", md5))
 	fmt.Println("RealPasswd", string(md5Passwd))
 	fmt.Println("Key", md5Passwd[0:16])
 	fmt.Println("IV ", md5Passwd[16:32])
-	u := url.URL{Scheme: "ws", Host: addr, Path: path}
+	u = url.URL{Scheme: "ws", Host: addr, Path: path}
 	log.Printf("connecting to %s", u.String())
 
-	Connection, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
-	if err != nil {
-		log.Fatal("dial:", err)
-	}
+	initws(u.String())
 	defer Connection.Close()
-
-	go wsHandler(Connection)
 	reader := bufio.NewReader(os.Stdin)
 	for {
 		var msg string
-		//fmt.Print("MinecraftCMD  > ")
 		msg, _ = reader.ReadString('\n')
+		if Connection == nil {
+			fmt.Println("Connection Not Created")
+		}
 		msg = strings.Replace(msg, "\n", "", -1)
 		Id := fmt.Sprintf("%x", rand.Intn(114514)+rand.Intn(1919810))
 		pkt := basePkt{Params: runcmdParams{Cmd: msg, Id: Id}, Type: "pack", Action: "runcmdrequest"}

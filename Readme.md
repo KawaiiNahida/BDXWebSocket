@@ -8,7 +8,7 @@
     "type":"pack",
     "cause": "join",
     "params": {
-        "sender": "WangYneos",
+        "sender": "ExamplePlayer",
         "xuid": "",
         "ip": "target's ip address"
     }
@@ -22,7 +22,7 @@
     "type":"pack",
     "cause": "left",
     "params": {
-        "sender": "gxh2004",
+        "sender": "ExamplePlayer",
         "xuid": ""
     }
 }
@@ -34,7 +34,7 @@
     "type":"pack",
     "cause": "cmd",
     "params": {
-        "sender": "gxh2004",
+        "sender": "ExamplePlayer",
         "cmd": "/kill @s"
     }
 }
@@ -44,16 +44,14 @@
 ```jsonc
 {
     "type":"pack",
-    "cause": "die",
+    "cause": "chat",
     "params": {
-        "target": "WangYneos",
-        "source": "gxh2004",
-		"causecode": "114514(Not real)",
-		"cause_name": "Killed By Other Player"
+        "sender": "ExamplePlayer",
+        "text": "HelloWorld"
     }
 }
 ```
-## 生物死亡(服务端发出(仅限有名字（NameTag）的生物
+## 生物死亡(服务端发出(仅限有名字（NameTag）的生物(玩家)
 ## Mob Die
 ```json
 {
@@ -61,7 +59,7 @@
   "cause": "mobdie",
   "params": {
     "mobtype": "entity.player.name",//实体类型
-    "mobname": "gxh2004",//实体名称
+    "mobname": "xxx",//实体名称
     "dmcase": 0,//伤害源ID
     "dmname": "",//伤害类型
     "srctype": "",//伤害源类型
@@ -74,6 +72,7 @@
   }
 }
 ```
+```
 
 
 ## WS客户端控制命令
@@ -84,7 +83,7 @@
 >    "type":"pack",
 >    "action": "runcmdrequest",
 >    "params": {
->        "cmd": "kick WangYneos nmsl",
+>        "cmd": "kick ExamplePlayer nmsl",
 >        "id": 0
 >    }
 >}

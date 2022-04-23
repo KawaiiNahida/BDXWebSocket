@@ -72,12 +72,10 @@
   }
 }
 ```
-```
-
 
 ## WS客户端控制命令
 ## WebSocket Client execute a command
-> - 发送命令(不需要斜杠)
+ - ## 发送命令(不需要斜杠)
 >```jsonc
 >{
 >    "type":"pack",
@@ -88,26 +86,57 @@
 >    }
 >}
 >```
-> - - 服务端返回
->```jsonc 
->{
->    "type":"pack",
->    "cause": "runcmdfeedback",
->    "params": {
->        "id": 0,
->        "result": ">命令执行结果<"
->    }
->}
->```
+> - #### 服务端返回
+>   ```jsonc 
+>   {
+>       "type":"pack",
+>       "cause": "runcmdfeedback",
+>       "params": {
+>           "id": 0,
+>           "result": ">命令执行结果<"
+>       }
+>   }
+>   ```
+>   ```jsonc
+>   {
+>       "type":"pack",
+>       "cause": "decodefailed",//密匙不匹配无法解密
+>       "params": {
+>           "msg": "密匙不匹配，无法解密数据包！"
+>       }
+>   }
+>   ```
+ - ## 发送服务器文本消息（需要加密）
 >```jsonc
 >{
 >    "type":"pack",
->    "cause": "decodefailed",//密匙不匹配无法解密
+>    "action": "sendtext",
 >    "params": {
->        "msg": "密匙不匹配，无法解密数据包！"
+>        "text": "hello world !",
+>        "id": 0
 >    }
 >}
 >```
+> - #### 服务端返回
+>   ```jsonc 
+>   {
+>       "type":"pack",
+>       "cause": "runcmdfeedback",
+>       "params": {
+>           "id": 0,
+>           "result": ">命令执行结果<"
+>       }
+>   }
+>   ```
+>   ```jsonc
+>   {
+>       "type":"pack",
+>       "cause": "decodefailed",//密匙不匹配无法解密
+>       "params": {
+>           "msg": "密匙不匹配，无法解密数据包！"
+>       }
+>   }
+>   ```
 ---
 ## 密文数据包
 - 加密包

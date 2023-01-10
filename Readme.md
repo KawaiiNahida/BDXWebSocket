@@ -1,5 +1,6 @@
 # WebSocketAPI
 
+# ABANDONED DUE TO POOR CODE QUALITY
 
 ## 玩家加入(服务端发出
 ## when a playe join the server
@@ -173,5 +174,4 @@
 -取密码大写MD5作为基密码  
 -前16位作为AES_Key  
 -后16位作为AES_IV  
--使用AES/CBC/PCKS7Padding(PCKS5Padding理论上通用)  
 -见en_decrypt_bdxws_demo.java为例子
